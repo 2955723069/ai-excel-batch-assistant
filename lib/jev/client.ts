@@ -1,4 +1,5 @@
 import { jevResultSchema, type ExtractedData, type JevResult } from "@/schemas/analysis";
+import { getRuntimeSettings } from "@/lib/settings";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
@@ -12,8 +13,9 @@ export class JevApiError extends Error {
 type JevResponse = { result?: unknown } | unknown;
 
 export async function requestJevDecision(input: ExtractedData): Promise<JevResult> {
-  const apiKey = process.env.JEV_API_KEY?.trim();
-  const baseUrl = process.env.JEV_BASE_URL?.trim();
+  const settings = await getRuntimeSettings();
+  const apiKey = settings.jev_api_key.trim();
+  const baseUrl = settings.jev_base_url.trim();
 
   if (!apiKey || !baseUrl) {
     throw new JevApiError("Jev 服务尚未配置。");

@@ -1,4 +1,5 @@
 const DEFAULT_TIMEOUT_MS = 60_000;
+import { getRuntimeSettings } from "@/lib/settings";
 
 export class LlmApiError extends Error {
   constructor(message = "LLM 服务暂时不可用。", public readonly cause?: unknown) {
@@ -17,11 +18,12 @@ type ResponsesResponse = {
 };
 
 export async function createChatCompletion(systemPrompt: string, userPrompt: string): Promise<string> {
-  const apiKey = process.env.LLM_API_KEY;
-  const baseUrl = process.env.LLM_BASE_URL?.trim();
-  const model = process.env.LLM_MODEL?.trim();
-  const wireApi = process.env.LLM_WIRE_API?.trim() || "chat_completions";
-  const useJsonResponseFormat = process.env.LLM_USE_JSON_RESPONSE_FORMAT === "true";
+  const settings = await getRuntimeSettings();
+  const apiKey = settings.llm_api_key;
+  const baseUrl = settings.llm_base_url.trim();
+  const model = settings.llm_model.trim();
+  const wireApi = settings.llm_wire_api;
+  const useJsonResponseFormat = settings.llm_use_json_response_format;
 
   if (!apiKey || !baseUrl || !model) {
     throw new LlmApiError("LLM 服务尚未配置。");
